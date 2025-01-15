@@ -21,7 +21,7 @@ function Header() {
                 <Container>
                     <Link to={'/'} style={{ textDecoration: "none" }} className='d-flex'> <Navbar.Brand href=""><h4 data-aos="flip-left"
                         data-aos-easing="ease-out-cubic"
-                        data-aos-duration="2000" ><FontAwesomeIcon icon={faEmpire} className='mx-1' /> Forverse</h4></Navbar.Brand></Link>
+                        data-aos-duration="2000" ><FontAwesomeIcon icon={faEmpire} className='mx-1' id='logo' /> Forverse</h4></Navbar.Brand></Link>
                     <Nav className="">
                         <Nav.Link href="/">Home</Nav.Link>
                         <Nav.Link href="/products">Products</Nav.Link>
