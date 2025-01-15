@@ -5,12 +5,18 @@ import { toast } from 'react-toastify'
 function Employee() {
 
   const checkIn = () => {
-    toast.success('Checked in successfully')
+    // toast.success('Checked in successfully')
+    alert('Checked in successfully')
 
   }
 
   const checkOut = () => {
-    toast.warning('Checked out successfully')
+    // toast.warning('Checked out successfully')
+    alert('Checked out successfully')
+  }
+
+  const resp=()=>{
+    alert(`Response submitted`)
   }
 
   return (
@@ -70,11 +76,11 @@ function Employee() {
                   <td className='text-center'>1</td>
                   <td className='text-center'>Build database using mongoDB</td>
                   <td className='text-center'>
-                    <button className='btn btn-success me-2 w-25'>Yes</button>
-                    <button className='btn btn-warning w-25'>No</button>
+                    <button className='btn btn-success me-2 w-25' onClick={resp}>Yes</button>
+                    <button className='btn btn-warning w-25' onClick={resp}>No</button>
                   </td>
                   <td className='text-center'>
-                    <button className='btn btn-danger'>Pending</button>
+                    <button className='btn btn-danger' onClick={resp}>Pending</button>
                   </td>
                 </tr>
 
@@ -82,11 +88,11 @@ function Employee() {
                   <td className='text-center'>2</td>
                   <td className='text-center'>Setup json server</td>
                   <td className='text-center'>
-                    <button className='btn btn-success me-2 w-25'>Yes</button>
-                    <button className='btn btn-warning w-25'>No</button>
+                    <button className='btn btn-success me-2 w-25' onClick={resp}>Yes</button>
+                    <button className='btn btn-warning w-25' onClick={resp}>No</button>
                   </td>
                   <td className='text-center'>
-                    <button className='btn btn-danger'>Pending</button>
+                    <button className='btn btn-danger' onClick={resp}>Pending</button>
                   </td>
                 </tr>
 
@@ -119,7 +125,7 @@ function Employee() {
 
 
 
-      <ToastContainer position='top-center' />
+      <ToastContainer position='top-center' theme='dark' />
     </>
   )
 }

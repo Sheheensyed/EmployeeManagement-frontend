@@ -1,10 +1,20 @@
 import { faEmpire } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Container, Nav, Navbar } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import AOS from 'aos'
+import "aos/dist/aos.css";
 
 function Header() {
+
+       useEffect(() => {
+            AOS.init({
+              disable: "phone",
+              duration: 700,
+              easing: "ease-out-cubic",
+            });
+          }, []);
     return (
         <>
             <Navbar bg="dark" data-bs-theme="dark" fixed='top' style={{ height: "70px" }}>
