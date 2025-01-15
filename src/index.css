@@ -1,0 +1,16 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    font-family: "Sulphur Point", serif;
+}
+
+#mainHeading{
+    color: aqua;
+}
+
+/* For WebKit browsers like Chrome, Safari, and Edge */ 
+::-webkit-scrollbar { width: 12px; /* Width of the scrollbar */ }
+
+::-webkit-scrollbar-thumb { background-color: rgba(43, 42, 42, 0.73); /* Color of the scrollbar thumb */ border-radius: 10px; /* Rounded corners for the scrollbar thumb */ }
+::-webkit-scrollbar-button {background-color: rgba(82, 82, 77, 0.581);}
+::-webkit-scrollbar-track {background-color: rgba(82, 82, 77, 0.581);}
