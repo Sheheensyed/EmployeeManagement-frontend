@@ -1,44 +1,107 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
-import { Flip, toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import { loginApi, requestApi } from '../../services/allApi';
+import { Flip } from 'react-toastify/unstyled';
+// import Swal from 'sweetalert2/dist/sweetalert2.js'
+// import 'sweetalert2/src/sweetalert2.scss'
 
-function SignIn({ register,admin }) {
+// import sweet-alert
+// const Swal = require('sweetalert2')
+
+function SignIn({ register }) {
 
   const navigate = useNavigate()
-  const [userDetails, setUserDetails] = useState({
-    username: "",
+  const [empDetails, setEmpDetails] = useState({
+    employeeName: "",
+    employeeID: "",
     email: "",
     password: ""
   })
-  console.log(userDetails);
+  console.log(empDetails);
 
 
-  const handleRegister = () => {
-    const { username, email, password } = userDetails
-    if (!username || !email || !password) {
+  const handleRegister = async () => {
+    const { employeeID, employeeName, email, password } = empDetails
+    if (!employeeID || !employeeName || !email || !password) {
       toast.info('Please fill the form')
     } else {
-      toast.success('Registration success')
-      // setUserDetails({
-      //   username:"",
-      //   email:"",
-      //   password:""
-      // })
-      navigate('/login')
+      const result = await requestApi(empDetails)
+      console.log(result);
+      if (result.status == 200) {
+        toast.success(`Registration successfull`)
+        setEmpDetails({
+          employeeName: "",
+          employeeID: "",
+          email: "",
+          password: ""
+        })
+        setTimeout(() => {
+
+          navigate('/dashboard')
+          // navigate('/admin')
+        }, 2500);
+      } else if (result.status == 406) {
+        toast.warning(result.response.data)
+      }
+      else {
+        toast.error(`Something went wrong`)
+      }
+
     }
   }
 
-  const handleLogin = () => {
-    const { username, password } = userDetails
-    if (!username || !password) {
+  const handleLogin = async () => {
+    const { employeeID, password } = empDetails
+    if (!employeeID || !password) {
       toast.info('Please fill the form completely')
     } else {
-      toast.success('Login success')
-      navigate('/dashboard')
+      const result = await loginApi({ employeeID, password })
+      console.log(result);
+      if (result.status == 200) {
+        toast.success(`Login successfull`)
+        sessionStorage.setItem('existingEmployee', JSON.stringify(result.data.existingEmployee))
+        sessionStorage.setItem('token', result.data.token)
+        setEmpDetails({
+          employeeName: "",
+          employeeID: "",
+          email: "",
+          password: ""
+        })
+        setTimeout(() => {
+          navigate('/dashboard')
+        }, 2500);
+
+      } else if (result.status == 406) {
+        toast.warning(result.response.data)
+      }
+      else {
+        toast.error(`Something went wrong`)
+      }
     }
   }
 
+  // use refs for input fields
+  const nameRef = useRef()
+  const emailRef = useRef()
+  const idRef = useRef()
+  const passwordRef = useRef()
+
+  const handleKeyDown = (event, nextFieldRef) => {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      if (nextFieldRef) {
+        nextFieldRef.current.focus()
+      } else {
+        if (register) {
+          handleRegister()
+        } else {
+          handleLogin()
+        }
+      }
+    }
+  }
 
   return (
     <>
@@ -58,17 +121,19 @@ function SignIn({ register,admin }) {
               }
 
 
-              {register && <input type="text" placeholder='Username' className='form-control mb-2' onChange={(e) => { setUserDetails({ ...userDetails, username: e.target.value }) }} />}
-              <input type="text" placeholder='Email id' className='form-control mb-2' onChange={(e) => { setUserDetails({ ...userDetails, email: e.target.value }) }} />
-              <input type="password" placeholder='Password' className='form-control mb-2' onChange={(e) => { setUserDetails({ ...userDetails, password: e.target.value }) }} />
+              {register && <input ref={nameRef} onKeyDown={(e) => handleKeyDown(e, emailRef)} type="text" placeholder='Employee Name' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, employeeName: e.target.value }) }} />}
+
+              {register && <input ref={emailRef} onKeyDown={(e) => handleKeyDown(e, idRef)} type="text" placeholder='Email ID' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, email: e.target.value }) }} />}
+
+              <input ref={idRef} onKeyDown={(e) => handleKeyDown(e, passwordRef)} type="text" placeholder='Employee ID' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, employeeID: e.target.value }) }} />
+
+              <input ref={passwordRef} onKeyDown={(e) => handleKeyDown(e, null)} type="password" placeholder='Password' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, password: e.target.value }) }} />
 
 
               {!register ?
                 <div className='d-flex justify-content-center align-items-center flex-column my-3'>
-                  <button type='button' className='btn btn-primary' onClick={handleLogin}>Login</button>
-                 {/* {admin &&  */}
-                 <p className='mt-2'>New user? Click here to <Link to={'/register'}>Register</Link></p>
-                 {/* } */}
+                  <button type='button' className='btn btn-primary' onClick={handleLogin} >Login</button>
+                  <p className='mt-2'>New user? Click here to <Link to={'/register'}>Register</Link></p>
                 </div>
                 :
                 <div className='d-flex justify-content-center align-items-center flex-column my-3'>
@@ -86,7 +151,7 @@ function SignIn({ register,admin }) {
         </Row>
       </Container>
 
-      <ToastContainer position='top-center' autoClose={2000} theme='dark' />
+      <ToastContainer position='top-center' autoClose={2000} theme='dark' transition={Flip} />
     </>
   )
 }

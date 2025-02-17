@@ -11,7 +11,7 @@ function Footer() {
         <div className="row bg-light">
 
             <div className="col-md-4 p-4">
-                <h3 ><FontAwesomeIcon icon={faEmpire} className='mx-1' /> Forverse</h3>
+                <Link to={'/'} style={{textDecoration:"none"}}><h3 ><FontAwesomeIcon icon={faEmpire} className='logo mx-1' /> Forverse</h3></Link>
                 <p style={{textAlign:"justify"}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas maiores blanditiis repellendus odit repudiandae explicabo excepturi aliquam assumenda. Aliquid, quia delectus esse alias accusantium impedit dolores aliquam aspernatur odit vitae! Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur quidem autem consectetur culpa, illum veritatis, nulla sit harum repellendus consequatur, sequi ipsa. Provident, consectetur </p>
             </div>
 

@@ -1,6 +1,8 @@
+import { faCheck, faX } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { ToastContainer } from 'react-bootstrap'
-import { toast } from 'react-toastify'
+// import { toast } from 'react-toastify'
 
 function Employee() {
 
@@ -19,6 +21,9 @@ function Employee() {
     alert(`Response submitted`)
   }
 
+  // const date = new Date().toLocaleDateString()
+  // console.log(date);
+  
   return (
     <>
       <div className="container w-100 mt-5" style={{ height: "100vh" }}>
@@ -65,8 +70,7 @@ function Employee() {
                 <tr>
                   <th className='text-center'>S.no</th>
                   <th className='text-center'>Particular</th>
-                  <th className='text-center'>Completed</th>
-                  <th className='text-center'>Pending</th>
+                  <th className='text-center'>Status</th>
                 </tr>
               </thead>
 
@@ -75,37 +79,33 @@ function Employee() {
                 <tr>
                   <td className='text-center'>1</td>
                   <td className='text-center'>Build database using mongoDB</td>
-                  <td className='text-center'>
-                    <button className='btn btn-success me-2 w-25' onClick={resp}>Yes</button>
-                    <button className='btn btn-warning w-25' onClick={resp}>No</button>
-                  </td>
-                  <td className='text-center'>
-                    <button className='btn btn-danger' onClick={resp}>Pending</button>
+                  <td className='text-center' >
+                    <button className='btn btn-success me-2 w-25' onClick={resp}><FontAwesomeIcon icon={faCheck}/></button>
+                    <button className='btn btn-warning w-25' onClick={resp}><FontAwesomeIcon icon={faX}/></button>
+                    <button className='btn btn-danger w-25 ms-2' onClick={resp}>Pending</button>
                   </td>
                 </tr>
 
                 <tr>
                   <td className='text-center'>2</td>
                   <td className='text-center'>Setup json server</td>
-                  <td className='text-center'>
-                    <button className='btn btn-success me-2 w-25' onClick={resp}>Yes</button>
-                    <button className='btn btn-warning w-25' onClick={resp}>No</button>
+                   <td className='text-center'>
+                    <button className='btn btn-success me-2 w-25' onClick={resp}><FontAwesomeIcon icon={faCheck}/></button>
+                    <button className='btn btn-warning w-25' onClick={resp}><FontAwesomeIcon icon={faX}/></button>
+                    <button className='btn btn-danger w-25 ms-2 ' onClick={resp}>Pending</button>
                   </td>
-                  <td className='text-center'>
-                    <button className='btn btn-danger' onClick={resp}>Pending</button>
-                  </td>
+                  
                 </tr>
 
                 <tr>
                   <td className='text-center'>3</td>
                   <td className='text-center'>Make frontend for the client</td>
-                  <td className='text-center'>
-                    <button className='btn btn-success me-2 w-25'>Yes</button>
-                    <button className='btn btn-warning w-25'>No</button>
+                   <td className='text-center'>
+                    <button className='btn btn-success me-2 w-25' onClick={resp}><FontAwesomeIcon icon={faCheck}/></button>
+                    <button className='btn btn-warning w-25' onClick={resp}><FontAwesomeIcon icon={faX}/></button>
+                    <button className='btn btn-danger w-25 ms-2' onClick={resp}>Pending</button>
                   </td>
-                  <td className='text-center'>
-                    <button className='btn btn-danger'>Pending</button>
-                  </td>
+                  
                 </tr>
 
 

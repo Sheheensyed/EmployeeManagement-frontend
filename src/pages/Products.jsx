@@ -1,62 +1,93 @@
-import React from 'react'
-import { Col, Container, Row } from 'react-bootstrap'
+import React, { useEffect, useState } from 'react'
+import { Card, Col, Container, Row } from 'react-bootstrap'
 import Edit from '../components/Edit'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faGlobe } from '@fortawesome/free-solid-svg-icons'
-import AddProducts from '../components/AddProducts'
+import { faGlobe, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { getAllProductsApi } from '../../services/allApi'
+import { serverUrl } from '../../services/serviceUrl'
+// import AddProducts from '../components/AddProducts'
+
 
 function Products() {
+
+  const [allProduct, setAllProducts] = useState([])
+  const [searchKey,setSearchKey]=useState('')
+  // console.log(searchKey);
+  
+
+  const getAllProducts = async () => {
+
+    const result = await getAllProductsApi(searchKey)
+    // console.log(result.data);
+
+    // console.log(result.data);
+    setAllProducts(result.data)
+
+  }
+
+  useEffect(()=>{
+    getAllProducts()
+  },[searchKey])
+
+  useEffect(() => {
+    getAllProducts()
+  }, [])
   return (
     <>
-      <Container className='w-100 p-5' style={{ height: "100vh" }}>
+      <Container className='w-100 p-5' >
         <div className='mt-5  d-flex justify-content-between align-items-center'>
           <h1 className=''>Products</h1>
-         <AddProducts/>
+
+          <div className="d-flex justify-content-center align-items-center">
+            <input type="text" placeholder='Search products' className='form-control bg-light w-100' onChange={(e)=>setSearchKey(e.target.value)} name="" id="productInput" />
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="" style={{ marginLeft: "-20px" }} />
+          </div>
+
+
+
+
         </div>
         <Row>
 
-          <Col sm={12} md={12} lg={12} className='mt-3' >
 
-            <div className='p-2 d-flex justify-content-between align-items-center bg-light w-75 rounded-2' >
-              <h3>Tesla</h3>
-  
-              <div className='d-flex   fa-xl'>
-                <Edit />
-                <FontAwesomeIcon icon={faGlobe} className='mx-3 text-success' />
-              </div>
-            </div>
+          {
+            allProduct?.length > 0 ? (
 
-          </Col>
+              allProduct?.map((item) => (
 
-          <Col sm={12} md={12} lg={12} className='mt-3' >
+                <Col sm={12} md={6} lg={3} className='mt-3' >
 
-            <div className='p-2 d-flex justify-content-between align-items-center bg-light w-75 rounded-2' >
-              <h3>Tesla</h3>
-  
-              <div className='d-flex   fa-xl'>
-                <Edit />
-                <FontAwesomeIcon icon={faGlobe} className='mx-3 text-success' />
-              </div>
-            </div>
+                  {/* <div className='p-2 d-flex justify-content-between align-items-center bg-light w-75 rounded-2' >
+                    <h3>{item.productName}</h3>
+                  </div> */}
 
-          </Col>
+                  <Card style={{ width: '20rem' }} className=''>
+                    <Card.Img variant="top" src={`${serverUrl}/upload/${item.
+                      productImage}`} style={{height:"250px"}} />
+                    <Card.Body>
+                      <Card.Title>{item.productName}</Card.Title>
+                    </Card.Body>
+                  </Card>
 
-          <Col sm={12} md={12} lg={12} className='mt-3' >
+                </Col>
+              ))
+            )
+              :
+              (
 
-            <div className='p-2 d-flex justify-content-between align-items-center bg-light w-75 rounded-2' >
-              <h3>Tesla</h3>
-  
-              <div className='d-flex   fa-xl'>
-                <Edit />
-                <FontAwesomeIcon icon={faGlobe} className='mx-3 text-success' />
-              </div>
-            </div>
+                <div className=' d-flex justify-content-center align-items-center' >
+                  <p className=''>No Products available</p>
+                </div>
+              )
+          }
 
-          </Col>
+
+
 
 
         </Row>
       </Container>
+
     </>
   )
 }

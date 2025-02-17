@@ -10,23 +10,26 @@ import Footer from './components/Footer'
 import ContactUs from './pages/ContactUs'
 import Products from './pages/Products'
 import Admin from './pages/Admin'
+import ContextShare from './context/ContextShare'
 
 function App() {
 
   return (
     <>
-    <Header/>
-      <Routes>
-        <Route path={'/'} element={<Home/>} />
-        <Route path={'/login'} element={<SignIn/>} admin={true}/>
-        <Route path={'/register'} element={<SignIn register={true}/>} />
-        <Route path={'/dashboard'} element={<Employee/>} />
-        <Route path={'/contact'} element={<ContactUs/>} />
-        <Route path={'/products'} element={<Products/>} />
-        <Route path={'/admin'} element={<Admin/>} />
-        <Route path={'*'} element={<PageNotFound/>} />
-      </Routes>
-      <Footer/>
+   <ContextShare>
+      <Header/>
+        <Routes>
+          <Route path={'/'} element={<Home/>} />
+          <Route path={'/login'} element={<SignIn/>} admin={true}/>
+          <Route path={'/register'} element={<SignIn register={true}/>} />
+          <Route path={'/dashboard'} element={<Employee/>} />
+          <Route path={'/contact'} element={<ContactUs/>} />
+          <Route path={'/products'} element={<Products/>} />
+          <Route path={'/admin'} element={<Admin/>} />
+          <Route path={'*'} element={<PageNotFound/>} />
+        </Routes>
+        <Footer/>
+   </ContextShare>
     </>
   )
 }
