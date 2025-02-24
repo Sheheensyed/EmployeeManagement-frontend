@@ -3,7 +3,7 @@ import { serverUrl } from "./serviceUrl"
 
 // register request
 export const requestApi = async(reqBody)=>{
-    return await commonApi('POST',`${serverUrl}/register`,reqBody,"")
+    return await commonApi('POST',`${serverUrl}/register`,reqBody)
 }
 
 // login request
@@ -31,3 +31,33 @@ export const getAllProductsApi = async(searchKey)=>{
 export const assignWorkApi=async(reqBody,reqHeader)=>{
     return await commonApi('POST',`${serverUrl}/assign-work`,reqBody,reqHeader)
 }
+
+// fetch assigned task
+export const getAssignedTaskApi=async(employeeId)=>{
+    return await commonApi('GET',`${serverUrl}/getAssignedTasks/${employeeId}`)
+}
+
+// update task status
+export const updateTaskStatusApi=async(reqBody)=>{
+    return await commonApi('POST',`${serverUrl}/update-task-status`,reqBody)
+}
+
+// fetch all tasks logs for admin
+export const getAllTaskLogsApi = async () => {
+    return await commonApi('GET', `${serverUrl}/get-all-task-logs`);
+};
+
+// Check-in API
+export const checkInApi = async (employeeID) => {
+    return await commonApi('POST', `${serverUrl}/check-in/${employeeID}`);
+};
+
+// Check-out API
+export const checkOutApi = async (employeeID) => {
+    return await commonApi('POST', `${serverUrl}/check-out/${employeeID}`);
+};  
+
+// Get attendance logs
+export const getAttendanceLogsApi = async () => {
+    return await commonApi('GET', `${serverUrl}/get-attendance-logs`);
+};
