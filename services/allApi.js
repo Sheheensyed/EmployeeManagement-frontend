@@ -34,13 +34,14 @@ export const assignWorkApi=async(reqBody,reqHeader)=>{
 
 // fetch assigned task
 export const getAssignedTaskApi=async(employeeId)=>{
-    return await commonApi('GET',`${serverUrl}/getAssignedTasks/${employeeId}`)
+    return await commonApi('GET',`${serverUrl}/get-assigned-tasks/${employeeId}`)
 }
 
 // update task status
-export const updateTaskStatusApi=async(reqBody)=>{
-    return await commonApi('POST',`${serverUrl}/update-task-status`,reqBody)
-}
+export const updateTaskStatusApi = async (reqBody) => {
+    return await commonApi('POST', `${serverUrl}/update-task-status`,reqBody);
+};
+
 
 // fetch all tasks logs for admin
 export const getAllTaskLogsApi = async () => {
@@ -60,4 +61,19 @@ export const checkOutApi = async (employeeID) => {
 // Get attendance logs
 export const getAttendanceLogsApi = async () => {
     return await commonApi('GET', `${serverUrl}/get-attendance-logs`);
+};
+
+// get all employees
+export const getAllEmployeesApi = async () => {
+    return await commonApi('GET', `${serverUrl}/all-employees`);
+};
+
+// delete employee
+export const deleteEmployeeApi = async (employeeID) => {
+    return await commonApi('DELETE', `${serverUrl}/delete-employee/${employeeID}`);
+};
+
+// Update employee details
+export const updateEmployeeApi = async (reqBody) => {
+    return await commonApi('PUT', `${serverUrl}/update-employee`, reqBody);
 };

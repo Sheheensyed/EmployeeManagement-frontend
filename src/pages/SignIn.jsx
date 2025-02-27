@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -7,6 +7,8 @@ import { Flip } from 'react-toastify/unstyled';
 
 function SignIn({ register }) {
   const navigate = useNavigate();
+
+  // State to store input values
   const [empDetails, setEmpDetails] = useState({
     employeeName: "",
     employeeID: "",
@@ -14,63 +16,97 @@ function SignIn({ register }) {
     password: ""
   });
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role === "admin") {
+      navigate("/admin");
+    } else if (role === "employee") {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   console.log(empDetails);
 
+  // Registration Function
   const handleRegister = async () => {
     const { employeeID, employeeName, email, password } = empDetails;
     if (!employeeID || !employeeName || !email || !password) {
       toast.info('Please fill the form');
-    } else {
+      return;
+    }
+
+    try {
       const result = await requestApi(empDetails);
-      console.log(result);
       if (result.status === 200) {
         toast.success(`Registration successful`);
         setEmpDetails({ employeeName: "", employeeID: "", email: "", password: "" });
 
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/login'); // Redirect to login after registration
         }, 1500);
-      } else if (result.status === 406) {
-        toast.warning(result.response.data);
       } else {
-        toast.error(`Something went wrong`);
+        toast.error(result.data.message || "Something went wrong");
       }
+    } catch (error) {
+      toast.error("Server error, try again later");
     }
   };
 
-  const handleLogin = async () => {
-    const { employeeID, password } = empDetails;
-    
+  // Login Function
+  const handleLogin = async (e) => {
+    if (e) e.preventDefault();
+  
+    console.log("Logging in with:", empDetails); // ✅ Debug Input
+  
+    const { employeeID, password } = empDetails; // ✅ Extract correct values
+  
     if (!employeeID || !password) {
-      toast.info('Please fill the form completely');
-    } else {
-      try {
-        const result = await loginApi({ employeeID, password });
-        console.log("Login Result:", result);
+      toast.warning("Please enter both Employee ID and password.");
+      return;
+    }
+  
+    try {
+      const response = await loginApi({ employeeID, password });
+  
+      console.log("API Response:", response.data); // ✅ Log the API response
+  
+      if (response.status === 200 && response.data.existingEmployee) {
+        const user = response.data.existingEmployee; // ✅ Extract user details
+  
+        // ✅ Store correct values
+        localStorage.setItem("employeeID", user.employeeID);
+        localStorage.setItem("employeeName", user.employeeName);
+        localStorage.setItem("role", user.role === "user" ? "employee" : user.role);
 
-        if (result.status === 200) {
-          toast.success("Login successful");
+        localStorage.setItem("token", response.data.token);
+        console.log("User Role:", localStorage.getItem("role"));
 
-          // Store only employeeID in localStorage
-          localStorage.setItem("employeeID", result.data.existingEmployee.employeeName);
-          localStorage.setItem("token", result.data.token);
-
-          setEmpDetails({ employeeName: "", employeeID: "", email: "", password: "" });
-
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 1500);
-        } else if (result.status === 406) {
-          toast.warning(result.response.data);
+  
+        toast.success("Login successful!");
+  
+        // ✅ Redirect based on role
+        if (user.role === "admin") {
+          navigate("/admin");
+        } else if (user.role === "user") {
+          localStorage.setItem('role','employee')
+          navigate("/dashboard");
         } else {
-          toast.error("Something went wrong");
+          navigate("/");
         }
-      } catch (error) {
-        console.error("Login Error:", error);
-        toast.error("Server error, try again later");
+      } else {
+        toast.error("Login failed. Check your credentials.");
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Error logging in. Try again.");
     }
   };
+  
+  
+  
+  
+  
 
   // Use refs for input fields
   const nameRef = useRef();
@@ -84,14 +120,12 @@ function SignIn({ register }) {
       if (nextFieldRef) {
         nextFieldRef.current.focus();
       } else {
-        if (register) {
-          handleRegister();
-        } else {
-          handleLogin();
-        }
+        // ✅ Ensure handleLogin is called correctly without an event parameter
+        register ? handleRegister() : handleLogin(new Event("submit"));
       }
     }
   };
+  
 
   return (
     <>
@@ -100,27 +134,29 @@ function SignIn({ register }) {
           <Col md={1}></Col>
 
           <Col sm={12} md={10} className='d-flex justify-content-center align-items-center'>
-            <form className=''>
+            <form className='' onSubmit={register ? handleRegister : handleLogin}>
               <h4 className='text-center mb-3'>Forverse</h4>
-              {!register ? <h5 className='mb-4'>Sign into your Account</h5> : <h5 className='mb-4'>Sign Up your Account</h5>}
+              <h5 className='mb-4'>{register ? "Sign Up Your Account" : "Sign Into Your Account"}</h5>
 
-              {register && <input ref={nameRef} onKeyDown={(e) => handleKeyDown(e, emailRef)} type="text" placeholder='Employee Name' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, employeeName: e.target.value }) }} />}
-              {register && <input ref={emailRef} onKeyDown={(e) => handleKeyDown(e, idRef)} type="text" placeholder='Email ID' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, email: e.target.value }) }} />}
-              
-              <input ref={idRef} onKeyDown={(e) => handleKeyDown(e, passwordRef)} type="text" placeholder='Employee ID' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, employeeID: e.target.value }) }} />
-              <input ref={passwordRef} onKeyDown={(e) => handleKeyDown(e, null)} type="password" placeholder='Password' className='form-control mb-2' onChange={(e) => { setEmpDetails({ ...empDetails, password: e.target.value }) }} />
-
-              {!register ? (
-                <div className='d-flex justify-content-center align-items-center flex-column my-3'>
-                  <button type='button' className='btn btn-primary' onClick={handleLogin} >Login</button>
-                  <p className='mt-2'>New user? Click here to <Link to={'/register'}>Register</Link></p>
-                </div>
-              ) : (
-                <div className='d-flex justify-content-center align-items-center flex-column my-3'>
-                  <button type='button' className='btn btn-primary' onClick={handleRegister}>Register</button>
-                  <p className='mt-2'>Already a user? Click here to <Link to={'/login'}>Login</Link></p>
-                </div>
+              {register && (
+                <>
+                  <input ref={nameRef} onKeyDown={(e) => handleKeyDown(e, emailRef)} type="text" placeholder='Employee Name' className='form-control mb-2' onChange={(e) => setEmpDetails({ ...empDetails, employeeName: e.target.value })} />
+                  <input ref={emailRef} onKeyDown={(e) => handleKeyDown(e, idRef)} type="text" placeholder='Email ID' className='form-control mb-2' onChange={(e) => setEmpDetails({ ...empDetails, email: e.target.value })} />
+                </>
               )}
+
+              <input ref={idRef} onKeyDown={(e) => handleKeyDown(e, passwordRef)} type="text" placeholder='Employee ID' className='form-control mb-2' onChange={(e) => setEmpDetails({ ...empDetails, employeeID: e.target.value })} />
+
+              <input ref={passwordRef} onKeyDown={(e) => handleKeyDown(e, null)} type="password" placeholder='Password' className='form-control mb-2' onChange={(e) => setEmpDetails({ ...empDetails, password: e.target.value })} />
+
+              <div className='d-flex justify-content-center align-items-center flex-column my-3'>
+                <button type='submit' className='btn btn-primary'>
+                  {register ? "Register" : "Login"}
+                </button>
+                <p className='mt-2'>
+                  {register ? "Already a user?" : "New user?"} Click here to <Link to={register ? '/login' : '/register'}>{register ? "Login" : "Register"}</Link>
+                </p>
+              </div>
             </form>
           </Col>
 

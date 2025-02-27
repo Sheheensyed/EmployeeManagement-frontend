@@ -1,164 +1,179 @@
-import { faCheck, faX } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import { checkInApi, checkOutApi, getAssignedTaskApi, updateTaskStatusApi } from '../../services/allApi';
+import React, { useEffect, useState } from "react";
+import {
+  getAssignedTaskApi,
+  updateTaskStatusApi,
+  checkInApi,
+  checkOutApi,
+} from "../../services/allApi";
+import { ToastContainer, toast } from "react-toastify";
+import { faCheck, faX } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function Employee() {
-  const [taskList, setTaskList] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [status, setStatus] = useState("Pending");
+  const [checkedIn, setCheckedIn] = useState(false);
   const employeeId = localStorage.getItem("employeeID");
+  const employeeName = localStorage.getItem("employeeName");
 
-  const handleCheckIn = async () => {
-    const employeeID = localStorage.getItem("employeeID");
-
-    try {
-        const response = await checkInApi( employeeID );
-
-        if (response.status === 200) {
-            toast.success("Checked in successfully");
-        } else {
-            toast.warning(response.data.message);
-        }
-    } catch (error) {
-        toast.error("Error checking in");
-    }
-};
-
-const handleCheckOut = async () => {
-    const employeeID = localStorage.getItem("employeeID");
-
-    try {
-        const response = await checkOutApi(employeeID );
-
-        if (response.status === 200) {
-            toast.success("Checked out successfully");
-        } else {
-            toast.warning(response.data.message);
-        }
-    } catch (error) {
-        toast.error("Error checking out");
-    }
-};
-
-  // Redirect to login if no employeeId is found
-  useEffect(() => {
-    if (!employeeId) {
-      console.error("Employee ID missing. Redirecting to login.");
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 500);
-    }
-  }, [employeeId]);
-
-  // Fetch assigned tasks
+  // ✅ Fetch tasks on page load
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!employeeId) return;
       try {
         const response = await getAssignedTaskApi(employeeId);
-        if (response.data.tasks.length > 0) {
-          setTaskList(response.data.tasks);
+        if (response.status === 200 && response.data.tasks) {
+          setTasks(
+            response.data.tasks.map((task) => ({
+              name: task,
+              status: response.data.status,
+            }))
+          );
         } else {
-          setTaskList([]);
+          setTasks([]);
         }
       } catch (error) {
         console.error("Error fetching tasks:", error);
+        toast.error("Failed to fetch tasks");
       }
     };
 
-    if (employeeId) fetchTasks();
+    fetchTasks();
   }, [employeeId]);
 
-  // ✅ Function to update task status
-  const updateStatus = async (taskName, newStatus) => {
+  // ✅ Handle Check-in
+  const handleCheckIn = async () => {
+    try {
+      const response = await checkInApi(employeeId);
+      if (response.status === 200) {
+        toast.success("Checked in successfully!");
+        setCheckedIn(true);
+      } else {
+        toast.warning("Check-in failed");
+      }
+    } catch (error) {
+      toast.error("Error during check-in");
+    }
+  };
+
+  // ✅ Handle Check-out
+  const handleCheckOut = async () => {
+    try {
+      const response = await checkOutApi(employeeId);
+      if (response.status === 200) {
+        toast.success("Checked out successfully!");
+        setCheckedIn(false);
+      } else {
+        toast.warning("Check-out failed");
+      }
+    } catch (error) {
+      toast.error("Error during check-out");
+    }
+  };
+
+  // ✅ Handle Task Status Update
+  const handleStatusUpdate = async (taskName, newStatus) => {
     try {
       const response = await updateTaskStatusApi({
-        employeeID: employeeId,
-        taskName,
-        status: newStatus
+        employeeId,
+        task: taskName,
+        status: newStatus,
       });
 
       if (response.status === 200) {
         toast.success(`Task "${taskName}" marked as ${newStatus}`);
 
-        // ✅ Remove updated task from UI
-        setTaskList((prevTasks) => prevTasks.filter(task => task !== taskName));
+        // Remove task if completed
+        setTasks((prevTasks) =>
+          prevTasks
+            .map((task) =>
+              task.name === taskName ? { ...task, status: newStatus } : task
+            )
+            .filter((task) => task.status !== "Completed")
+        );
       } else {
-        toast.error("Failed to update task status");
+        toast.warning("Failed to update status");
       }
     } catch (error) {
-      console.error("Error updating task status:", error);
       toast.error("Error updating task status");
     }
   };
 
   return (
     <>
-      <div className="container w-100 mt-5" style={{ height: "100vh" }}>
-        <div className="row mt-5">
-          <h1 className='ms-5 mt-5 text-center'>Hello <span className='text-success'>{employeeId}</span></h1>
+      <div className="container w-100 mt-5 p-5" style={{ height: "100vh" }}>
+        {/* ✅ Employee Name Display */}
+        <h1 className="text-center mt-5 fw-bolder">
+          Hello <span className="text-secondary">{employeeName || "Employee"}</span>
+        </h1>
 
-          <div className="col-md-4"></div>
-          <div className="col-md-4 p-3">
-            <table className='table table-bordered bg-light table-responsive'>
-              <thead>
-                <tr>
-                  <th className='text-center'>Check-in</th>
-                  <th className='text-center'>Check-out</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className='text-center'><button onClick={handleCheckIn} className='btn btn-success'>Check-in</button></td>
-                  <td className='text-center'><button onClick={handleCheckOut} className='btn btn-warning'>Check-out</button></td>
-                </tr>
-              </tbody>
-            </table>
+        {/* ✅ Check-in & Check-out Buttons */}
+        <div className="text-center my-4">
+          <strong>Status:</strong> {status}
+          <div className="mt-3">
+            {!checkedIn ? (
+              <button className="btn btn-success me-2" onClick={handleCheckIn}>
+                Check In
+              </button>
+            ) : (
+              <button className="btn btn-danger" onClick={handleCheckOut}>
+                Check Out
+              </button>
+            )}
           </div>
-          <div className="col-md-4"></div>
+        </div>
 
-          <div className="col-md-2"></div>
-          <div className="col-md-8">
-            <h4 className='text-center mt-5'>Today's Work</h4>
-            <table className='table table-bordered table-responsive'>
-              <thead>
-                <tr>
-                  <th className='text-center'>S.no</th>
-                  <th className='text-center'>Task</th>
-                  <th className='text-center'>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {taskList.length > 0 ? (
-                  taskList.map((task, index) => (
-                    <tr key={index}>
-                      <td className='text-center'>{index + 1}</td>
-                      <td className='text-center'>{task}</td>
-                      <td className='text-center'>
-                        <button className='btn btn-success me-2 w-25' onClick={() => updateStatus(task, "Completed")}>
-                          <FontAwesomeIcon icon={faCheck} />
-                        </button>
-                        <button className='btn btn-warning w-25' onClick={() => updateStatus(task, "In-Progress")}>
-                          <FontAwesomeIcon icon={faX} />
-                        </button>
-                        <button className='btn btn-danger w-25 ms-2' onClick={() => updateStatus(task, "Pending")}>
-                          Pending
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="text-center text-danger">No tasks assigned yet...</td>
+        {/* ✅ Task Table */}
+        <div className="col-md-8 offset-md-2">
+          <h4 className="text-center mt-5">Today's Work</h4>
+          <table className="table table-bordered table-responsive">
+            <thead>
+              <tr>
+                <th className="text-center">S.no</th>
+                <th className="text-center">Task</th>
+                <th className="text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.length > 0 ? (
+                tasks.map((task, index) => (
+                  <tr key={index}>
+                    <td className="text-center">{index + 1}</td>
+                    <td className="text-center">{task.name}</td>
+                    <td className="text-center">
+                      <button
+                        className="btn btn-success me-2 w-25"
+                        onClick={() => handleStatusUpdate(task.name, "Completed")}
+                      >
+                        <FontAwesomeIcon icon={faCheck} />
+                      </button>
+                      <button
+                        className="btn btn-warning w-25"
+                        onClick={() => handleStatusUpdate(task.name, "In-Progress")}
+                      >
+                        <FontAwesomeIcon icon={faX} />
+                      </button>
+                      <button
+                        className="btn btn-danger w-25 ms-2"
+                        onClick={() => handleStatusUpdate(task.name, "Pending")}
+                      >
+                        Pending
+                      </button>
+                    </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="col-md-2"></div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="text-center text-danger">
+                    No tasks assigned today...
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <ToastContainer position='top-center' theme='dark' />
+      <ToastContainer position="top-center" theme="dark" />
     </>
   );
 }

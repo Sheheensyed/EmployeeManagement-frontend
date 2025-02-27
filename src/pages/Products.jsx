@@ -55,11 +55,8 @@ function Products() {
 
               allProduct?.map((item) => (
 
-                <Col sm={12} md={6} lg={3} className='mt-3' >
+                <Col sm={12} md={6} lg={3} className='mt-3 mx-lg-3' >
 
-                  {/* <div className='p-2 d-flex justify-content-between align-items-center bg-light w-75 rounded-2' >
-                    <h3>{item.productName}</h3>
-                  </div> */}
 
                   <Card style={{ width: '20rem' }} className=''>
                     <Card.Img variant="top" src={`${serverUrl}/upload/${item.

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import AddProducts from '../components/AddProducts'
-import Edit from '../components/Edit'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import { assignWorkApi, getAllTaskLogsApi, getAssignedTaskApi, getAttendanceLogsApi, requestApi } from '../../services/allApi'
+import { faPenToSquare, faTrash, faX } from '@fortawesome/free-solid-svg-icons'
+import { assignWorkApi, deleteEmployeeApi, getAllEmployeesApi, getAllProductsApi, getAllTaskLogsApi, getAssignedTaskApi, getAttendanceLogsApi, requestApi, updateEmployeeApi } from '../../services/allApi'
 import { toast, ToastContainer } from 'react-toastify'
+import { Button, Modal } from 'react-bootstrap'
 
 function Admin({ register }) {
 
@@ -18,13 +18,10 @@ function Admin({ register }) {
         gender: "",
         password: ""
     })
-
     console.log(empDetails);
 
     const [taskLogs, setTaskLogs] = useState([])
     console.log('Task Logs:', taskLogs);
-
-
 
     const handleRegister = async () => {
         try {
@@ -110,24 +107,105 @@ function Admin({ register }) {
         }
     }
 
-    // useEffect(() => {
-    //     const fetchAllTasks = async () => {
-    //         try {
-    //             const response = await getAssignedTaskApi();
-    //             if (response.data.tasks.length > 0) {
-    //                 setTaskLogs(response.data.tasks);
-    //             }
-    //         } catch (error) {
-    //             console.error("Error fetching tasks:", error);
-    //         }
-    //     };
+    const [products, setProducts] = useState([])
+    const fetchProducts = async () => {
+        try {
+            const result = await getAllProductsApi()
+            if (result.status == 200) {
+                setProducts(result.data)
+            } else {
+                toast.warning(`Failed to fetch products`)
+            }
+        } catch (error) {
+            console.log(`Error fetching products:`, error);
+            toast.error(`Error fetching products`)
 
-    //     fetchAllTasks();
-    // }, []);
+        }
+    }
+    console.log(products);
 
 
     const [attendanceLogs, setAttendanceLogs] = useState([]);
     console.log(attendanceLogs);
+
+    const handleDelete = async (employeeID) => {
+        if (window.confirm(`Are you sure you want to remove this employee?`)) {
+            try {
+                const result = await deleteEmployeeApi(employeeID);
+                if (result.status === 200) {
+                    toast.success("Employee removed successfully");
+                    setEmployees(employees.filter(emp => emp.employeeID !== employeeID));
+                } else {
+                    toast.error("Failed to remove employee");
+                }
+            } catch (error) {
+                toast.error("Error removing employee");
+            }
+        }
+    };
+
+    const [showEdit, setShowEdit] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+    // 🔹 Handle Edit Button Click
+    const handleEdit = (employee) => {
+        setSelectedEmployee(employee);
+        setShowEdit(true);
+    };
+
+    // 🔹 Handle Close Edit Modal
+    const handleCloseEdit = () => {
+        setShowEdit(false);
+        setSelectedEmployee(null);
+    };
+
+    // 🔹 Handle Update Employee
+    const handleUpdateEmployee = async (updatedEmployee) => {
+        try {
+            const result = await updateEmployeeApi(updatedEmployee);
+            if (result.status === 200) {
+                toast.success("Employee updated successfully");
+                setShowEdit(false);
+
+                // Update UI with new details
+                setEmployees(prevEmployees =>
+                    prevEmployees.map(emp =>
+                        emp.employeeID === updatedEmployee.employeeID ? updatedEmployee : emp
+                    )
+                );
+            } else {
+                toast.warning("Failed to update employee");
+            }
+        } catch (error) {
+            console.error("Error updating employee:", error);
+            toast.error("Error updating employee details");
+        }
+    };
+
+
+
+
+
+
+    const [employees, setEmployees] = useState([]);
+    console.log(employees);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const result = await getAllEmployeesApi();
+                if (result.status === 202) {
+                    setEmployees(result.data);
+                } else {
+                    setEmployees([]);
+                }
+            } catch (error) {
+                console.error("Error fetching employees:", error);
+            }
+        };
+        fetchEmployees();
+    }, []);
+
 
     useEffect(() => {
         const fetchAttendanceLogs = async () => {
@@ -167,10 +245,17 @@ function Admin({ register }) {
         fetTaskLogs()
     }, [])
 
+    useEffect(() => {
+        fetchProducts()
+    }, [])
+    // ✅ Callback function to update products after adding a new one
+    const handleProductAdded = () => {
+        fetchProducts();
+    };
 
     return (
         <>
-            <div className="container d-flex p-3 mt-5 w-100" style={{ height: "100vh" }}>
+            <div className="container d-flex p-5 mt-5 " >
 
                 <aside className='bg-light text-white p-3 my-3' style={{ width: "250px" }}>
                     <h4 className='text-center'>Admin Panel</h4>
@@ -254,7 +339,7 @@ function Admin({ register }) {
 
                     {section === "attendance" && (
 
-                        <div className='mt-3' style={{ height: "300px" }}>
+                        <div className='mt-3' >
                             <h3 className='text-center'>Attendance Log</h3>
                             <table className='table table-responsive table-bordered'>
                                 <thead>
@@ -318,7 +403,7 @@ function Admin({ register }) {
                                                         className={`badge ${task.status === "Completed"
                                                             ? "bg-success"
                                                             : task.status === "In-Progress"
-                                                                ? "bg-warning text-dark"
+                                                                ? "bg-warning text-black"
                                                                 : "bg-danger"
                                                             }`}
                                                     >
@@ -346,81 +431,110 @@ function Admin({ register }) {
 
                     )
                     }
-
+                    {/*  className='table table-bordered mt-3 table-hover table-striped' */}
                     {/* Manage employee */}
 
                     {section === "manage" && (
-
-                        <div className='mt-5'>
-                            <h3 className='text-center'>Manage Employees</h3>
-                            <div className='bg-light mt-3 rounded d-flex justify-content-between align-items-center'>
-                                <p className=' ms-3 my-3'>Uniqo</p>
-                                <div className='d-flex'>
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-2 text-danger' />
-                                </div>
-
-                            </div>
-                            <div className='bg-light mt-3 rounded d-flex justify-content-between align-items-center'>
-                                <p className=' ms-3 my-3'>Uniqo</p>
-                                <div className='d-flex'>
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-2 text-danger' />
-                                </div>
-
-                            </div>
-                            <div className='bg-light mt-3 rounded d-flex justify-content-between align-items-center'>
-                                <p className=' ms-3 my-3'>Uniqo</p>
-                                <div className='d-flex'>
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-2 text-danger' />
-                                </div>
-
-                            </div>
-                            <div className='bg-light mt-3 rounded d-flex justify-content-between align-items-center'>
-                                <p className=' ms-3 my-3'>Uniqo</p>
-                                <div className='d-flex'>
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-2 text-danger' />
-                                </div>
-
-                            </div>
+                        <div className="mt-5">
+                            <h3 className="text-center">Manage Employees</h3>
+                            <table className="table table-bordered mt-3">
+                                <thead>
+                                    <tr>
+                                        <th className="text-center">Employee ID</th>
+                                        <th className="text-center">Name</th>
+                                        <th className="text-center">Email</th>
+                                        <th className="text-center">Phone</th>
+                                        <th className="text-center">Designation</th>
+                                        <th className="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {employees.length > 0 ? (
+                                        employees.map((emp, index) => (
+                                            <tr key={index}>
+                                                <td className="text-center">{emp.employeeID}</td>
+                                                <td className="text-center">{emp.employeeName}</td>
+                                                <td className="text-center">{emp.email}</td>
+                                                <td className="text-center">{emp.phone}</td>
+                                                <td className="text-center">{emp.designation}</td>
+                                                <td className="text-center">
+                                                    <button className="btn me-2" onClick={() => handleEdit(emp)}>
+                                                        <FontAwesomeIcon icon={faPenToSquare} />
+                                                    </button>
+                                                    <button className="btn text-danger" onClick={() => handleDelete(emp.employeeID)}>
+                                                        <FontAwesomeIcon icon={faX} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="6" className="text-center text-danger">No employees found.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
-                    )
-                    }
+                    )}
+
+                    {/* 🔹 Edit Employee Modal */}
+                    <Modal show={showEdit} onHide={handleCloseEdit} centered>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Edit Employee</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            {selectedEmployee && (
+                                <>
+                                    <input type="text" value={selectedEmployee.employeeName} className="form-control my-2"
+                                        onChange={(e) => setSelectedEmployee({ ...selectedEmployee, employeeName: e.target.value })} />
+
+                                    <input type="text" value={selectedEmployee.email} className="form-control my-2"
+                                        onChange={(e) => setSelectedEmployee({ ...selectedEmployee, email: e.target.value })} />
+
+                                    <input type="text" value={selectedEmployee.phone} className="form-control my-2"
+                                        onChange={(e) => setSelectedEmployee({ ...selectedEmployee, phone: e.target.value })} />
+
+                                    <input type="text" value={selectedEmployee.designation} className="form-control my-2"
+                                        onChange={(e) => setSelectedEmployee({ ...selectedEmployee, designation: e.target.value })} />
+
+                                    <select className="form-control my-2" value={selectedEmployee.gender}
+                                        onChange={(e) => setSelectedEmployee({ ...selectedEmployee, gender: e.target.value })}>
+                                        <option value="M">Male</option>
+                                        <option value="F">Female</option>
+                                    </select>
+                                </>
+                            )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleCloseEdit}>Cancel</Button>
+                            <Button variant="primary" onClick={() => handleUpdateEmployee(selectedEmployee)}>Save Changes</Button>
+                        </Modal.Footer>
+                    </Modal>
+
+
 
                     {/* Add products */}
                     {section === "products" && (
 
-                        <div className='mt-3'>
-                            <div className='mt-3'><AddProducts /></div>
-                            <div className='bg-light mt-4 p-2 rounded d-flex justify-content-between align-items-center'>
-                                <h3 className=''>Uniqo</h3>
+                        <div className="mt-3">
+                            <h3 className="text-center">Add & Manage Products</h3>
+                            <AddProducts onProductAdded={handleProductAdded} />
 
-                                <div className='d-flex'>
-                                    <Edit />
-
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-4 text-danger' />
-                                </div>
-
+                            {/* ✅ Product List */}
+                            <div className="mt-4">
+                                {products.length > 0 ? (
+                                    products.map((product, index) => (
+                                        <div key={product._id} className="bg-light mt-3 p-2 rounded d-flex justify-content-between align-items-center">
+                                            <h5>{product.productName}</h5>
+                                            <div className="d-flex">
+                                                <FontAwesomeIcon icon={faTrash} className="fa-xl me-4 text-danger" />
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-danger mt-3">No products available</p>
+                                )}
                             </div>
-                            <div className='bg-light mt-3 p-2 rounded d-flex justify-content-between align-items-center'>
-                                <h3 className=''>Uniqo</h3>
-
-                                <div className='d-flex'>
-                                    <Edit />
-
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-4 text-danger' />
-                                </div>
-
-                            </div>
-                            <div className='bg-light mt-3 p-2 rounded d-flex justify-content-between align-items-center'>
-                                <h3 className=''>Uniqo</h3>
-
-                                <div className='d-flex'>
-                                    <Edit />
-
-                                    <FontAwesomeIcon icon={faTrash} className='fa-xl me-4 text-danger' />
-                                </div>
-
-                            </div>
-
                         </div>
                     )
                     }

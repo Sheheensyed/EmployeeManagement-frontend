@@ -33,7 +33,6 @@ function Footer() {
               <Link to={'/'} style={{textDecoration:"none"}} className='text-dark'><p className=''>Home</p></Link>
               <Link to={'/contact'} style={{textDecoration:"none"}} className='text-dark'><p className=''>Contact</p></Link>
               <Link to={'/products'} style={{textDecoration:"none"}} className='text-dark'><p className=''>Products</p></Link>
-              <Link to={'/admin'} style={{textDecoration:"none"}} className='text-dark'><p className=''>Admin</p></Link>
               
               
             </div>
