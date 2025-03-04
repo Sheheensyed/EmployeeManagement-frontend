@@ -149,14 +149,14 @@ function SignIn({ register }) {
 
               <input ref={passwordRef} onKeyDown={(e) => handleKeyDown(e, null)} type="password" placeholder='Password' className='form-control mb-2' onChange={(e) => setEmpDetails({ ...empDetails, password: e.target.value })} />
 
-              <div className='d-flex justify-content-center align-items-center flex-column my-3'>
+              {/* <div className='d-flex justify-content-center align-items-center flex-column my-3'>
                 <button type='submit' className='btn btn-primary'>
                   {register ? "Register" : "Login"}
                 </button>
                 <p className='mt-2'>
                   {register ? "Already a user?" : "New user?"} Click here to <Link to={register ? '/login' : '/register'}>{register ? "Login" : "Register"}</Link>
                 </p>
-              </div>
+              </div> */}
             </form>
           </Col>
 
