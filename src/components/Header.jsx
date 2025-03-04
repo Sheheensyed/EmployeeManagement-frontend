@@ -51,7 +51,16 @@ function Header() {
                     <Nav>
                         <Nav.Link as={Link} to="/">Home</Nav.Link>
                         <Nav.Link as={Link} to="/products">Products</Nav.Link>
-                        <Nav.Link as={Link} to="/login">Login</Nav.Link>
+
+                        {!isLogin ? (
+
+                            <Nav.Link as={Link} to="/login">Login</Nav.Link>
+                        ) : (
+                            <Nav.Link onClick={handleLogout} style={{ cursor: "pointer" }}>
+                                <FontAwesomeIcon icon={faPowerOff} /> Logout
+                            </Nav.Link>
+
+                        )}
 
                         {/* {!isLogin ? (
                             <NavDropdown title="Login" id="basic-nav-dropdown">
