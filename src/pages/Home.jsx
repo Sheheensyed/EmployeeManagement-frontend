@@ -117,7 +117,7 @@ function Home() {
                         ))
                     ) : (
                         <div className="col-12 text-center">
-                            <p>No products available</p>
+                            <p>No products Available</p>
                         </div>
                     )}
                 </div>
