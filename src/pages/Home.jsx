@@ -59,43 +59,6 @@ function Home() {
                 </Container>
             </div>
 
-            {/* <div className="container">
-                <h2 className='text-center mt-3'>Explore our Employees</h2>
-                <div className="row p-5 m-5 bg-light rounded-3">
-
-                    <div className="col-md-4 d-flex justify-content-center">
-                        <Card style={{ width: '18rem' }}>
-                            <Card.Img variant="top" src={sheheen} />
-                            <Card.Body>
-                                <Card.Title>Card Title</Card.Title>
-
-                            </Card.Body>
-                        </Card>
-                    </div>
-
-                    <div className="col-md-4 d-flex justify-content-center">
-                         <Card style={{ width: '18rem' }}>
-                        <Card.Img variant="top" src={sheheen} />
-                        <Card.Body>
-                            <Card.Title>Card Title</Card.Title>
-
-                        </Card.Body>
-                    </Card>
-                    </div>
-
-                    <div className="col-md-4 d-flex justify-content-center">
-                        <Card style={{ width: '18rem' }}>
-                        <Card.Img variant="top" src={sheheen} />
-                        <Card.Body>
-                            <Card.Title>Card Title</Card.Title>
-
-                        </Card.Body>
-                    </Card>
-                    </div>
-
-                </div>
-            </div> */}
-
             <h2 className='text-center mt-3'>Our Products</h2>
 
 
